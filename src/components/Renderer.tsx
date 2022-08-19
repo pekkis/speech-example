@@ -1,7 +1,12 @@
 import clsx from "clsx";
 import { FC, useMemo, useState } from "react";
 import { FaMusic } from "react-icons/fa";
-import { imgClass, isUtteringClass } from "./Renderer.css";
+import {
+  imgClass,
+  isUtteringClass,
+  articleClass,
+  selectClass
+} from "./Renderer.css";
 
 type HeadingArticleData = {
   type: "heading";
@@ -28,7 +33,7 @@ export type Article = {
 
 type Props = {
   article: Article;
-  synth: SpeechSynthesis;
+  synth?: SpeechSynthesis;
   voices: SpeechSynthesisVoice[];
 };
 
@@ -63,25 +68,11 @@ const Renderer: FC<Props> = ({ synth, article, voices }) => {
   const [selectedVoice, setSelectedVoice] = useState<number>(0);
 
   const [isUttering, setIsUttering] = useState<number | null>(null);
-  return (
-    <div>
-      <div>
-        {availableVoices.map((av, i) => {
-          return (
-            <div key={i}>
-              <input
-                type="radio"
-                checked={selectedVoice === i}
-                onChange={() => {
-                  setSelectedVoice(i);
-                }}
-              />{" "}
-              {av.name};{av.lang}
-            </div>
-          );
-        })}
-      </div>
 
+  const classes = clsx(articleClass);
+
+  return (
+    <article className={classes} lang={article.locale}>
       {article.data.map((d, i) => {
         const Component = renderables[d.type];
 
@@ -96,41 +87,65 @@ const Renderer: FC<Props> = ({ synth, article, voices }) => {
         );
       })}
 
-      <button
-        onClick={async () => {
-          console.log(voices, "voices");
+      <div>
+        <div>
+          <select
+            className={selectClass}
+            onChange={(e) => {
+              setSelectedVoice(parseInt(e.target.value, 10));
+            }}
+          >
+            {availableVoices.map((av, i) => {
+              return (
+                <option key={i} value={i}>
+                  {av.name}; {av.lang}; {av.localService ? "local" : "remote"}
+                </option>
+              );
+            })}
+          </select>
+        </div>
 
-          const theVoice = availableVoices[selectedVoice];
+        <button
+          disabled={!synth}
+          onClick={async () => {
+            if (!synth) {
+              return;
+            }
 
-          if (!theVoice) {
-            return;
-          }
+            console.log(voices, "voices");
 
-          console.log("SPEAKING WITH A VOICE", theVoice);
+            const theVoice = availableVoices[selectedVoice];
 
-          for (const [i, d] of article.data.entries()) {
-            setIsUttering(i);
-            const promise = new Promise((resolve) => {
-              const utterance = new SpeechSynthesisUtterance(d.text);
+            if (!theVoice) {
+              return;
+            }
 
-              utterance.addEventListener("end", () => {
-                resolve(true);
+            console.log("SPEAKING WITH A VOICE", theVoice);
+
+            for (const [i, d] of article.data.entries()) {
+              setIsUttering(i);
+              const promise = new Promise((resolve) => {
+                const utterance = new SpeechSynthesisUtterance(d.text);
+
+                utterance.addEventListener("end", () => {
+                  resolve(true);
+                });
+
+                utterance.voice = theVoice;
+                synth.speak(utterance);
               });
 
-              utterance.voice = theVoice;
-              synth.speak(utterance);
-            });
+              await promise;
+            }
 
-            await promise;
-          }
-
-          setIsUttering(null);
-        }}
-      >
-        <FaMusic />
-        &nbsp;puhu
-      </button>
-    </div>
+            setIsUttering(null);
+          }}
+        >
+          <FaMusic />
+          &nbsp;puhu
+        </button>
+      </div>
+    </article>
   );
 };
 

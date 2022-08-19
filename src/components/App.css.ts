@@ -3,7 +3,9 @@ import { vars } from "../theme.css";
 
 globalStyle("html", {
   fontFamily: vars.font.body,
-  fontSize: "18px"
+  fontSize: "18px",
+  backgroundColor: "rgb(255, 200, 200)",
+  backgroundImage: "url('/src/assets/duckling-pattern.png')"
 });
 
 globalStyle("body", {
@@ -17,7 +19,7 @@ globalStyle("strong", {
 });
 
 globalStyle("h2", {
-  marginTop: "2em",
+  marginTop: "1em",
   marginBottom: "1em"
 });
 

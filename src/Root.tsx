@@ -7,7 +7,13 @@ const Root: FC = () => {
   // All React components must return one thing. A fragment (the empty tag <>) is such "one thing" that has no markup.
   return (
     <>
-      <ErrorBoundary fallback={<div>OH NOES ERROROS TERRIBLOS</div>}>
+      <ErrorBoundary
+        fallbackRender={() => {
+          console.log("HIP HUU");
+
+          return <div>OH NOES ERROROS TERRIBLOS</div>;
+        }}
+      >
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />}></Route>

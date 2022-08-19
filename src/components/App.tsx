@@ -3,6 +3,7 @@ import { FC, useMemo, useState } from "react";
 import { contentClass, imgClass, isUtteringClass } from "./App.css";
 import { FaMusic } from "react-icons/fa";
 import Renderer, { Article } from "./Renderer";
+import YleForDucks from "./YleForDucks";
 
 const articles: Article[] = [
   {
@@ -71,30 +72,45 @@ const articles: Article[] = [
 const App: FC = () => {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-  const [synth] = useMemo(() => {
+  const synth = useMemo(() => {
     const synth = window.speechSynthesis;
+
+    if (!synth) {
+      return undefined;
+    }
 
     const voices = synth.getVoices();
     setVoices(voices);
 
-    synth.addEventListener("voiceschanged", (e) => {
+    synth?.addEventListener?.("voiceschanged", (e) => {
       const voices = synth.getVoices();
 
       console.log("voices", voices);
       setVoices(voices);
     });
 
-    return [synth];
+    return synth;
   }, []);
 
   return (
-    <div className={contentClass}>
+    <main className={contentClass}>
+      <div
+        style={{
+          height: "100px"
+        }}
+      >
+        <h1>
+          <div>
+            <YleForDucks height="50" /> YLE for ducks
+          </div>
+        </h1>
+      </div>
       {articles.map((article, i) => {
         return (
           <Renderer key={i} synth={synth} voices={voices} article={article} />
         );
       })}
-    </div>
+    </main>
   );
 };
 

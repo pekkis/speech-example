@@ -1,6 +1,3 @@
-// One of the stupid libraries needs this!
-import "regenerator-runtime/runtime";
-
 import { createRoot } from "react-dom/client";
 import Root from "./Root";
 
